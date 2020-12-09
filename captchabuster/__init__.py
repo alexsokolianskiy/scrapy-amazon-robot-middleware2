@@ -1,7 +1,7 @@
 import urllib
 import os
 import logging
-from StringIO import StringIO
+from io import StringIO
 
 from PIL import Image
 import requests
@@ -174,6 +174,7 @@ def load_images():
                 i = Image.open(os.path.join(letter_dir, img))
                 v = i.getdata()
                 d[letter].append({'image': i, 'data': v})
+                i.close()
     return d
 
 
@@ -190,8 +191,8 @@ def test():
 
     # cb = CaptchaBuster('./%d_captcha.jpg' % t)
     cb = CaptchaBuster(StringIO(session.get(soup.find('img').get('src')).content))
-    print cb.guess
-    # print 'Pass %d:' % t, cb.guess
+    print(cb.guess)
+    # print('Pass %d:' % t, cb.guess)
 
 
 class SessionTransferMiddleware(object):
