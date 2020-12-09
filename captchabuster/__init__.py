@@ -28,7 +28,6 @@ ICON_LOC = os.path.join(ROOT, 'iconset')
 
 
 class CaptchaBuster(object):
-
     def __init__(self, captcha_loc):
         self.original = Image.open(captcha_loc).convert('P')
         self.temp_file = StringIO()
@@ -174,7 +173,8 @@ def load_images():
                 i = Image.open(os.path.join(letter_dir, img))
                 v = i.getdata()
                 d[letter].append({'image': i, 'data': v})
-                i.close()
+                if i is not None:
+                    i.close()
     return d
 
 
@@ -232,7 +232,6 @@ class RobotMiddleware(object):
         self.cracking = False
 
     def request_image(self, request, response):
-
         # Im using beautiful soup because recursive element selection is built in and makes it easier
         # to parse the form inputs out into a dict.
         soup = BeautifulSoup(response.body)
