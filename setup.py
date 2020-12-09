@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 version = '0.1.0'
 
 REQUIREMENTS = [
-    'beautifulsoup',
+    'beautifulsoup4',
     'scrapy',
     'pillow',
     'requests'
