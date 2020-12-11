@@ -14,6 +14,7 @@ setup(
     version=version,
     packages=find_packages(),
     url='https://github.com/ziplokk1/scrapy-amazon-robot-middleware',
+    package_data={'captchabuster': ['iconset/**/*.gif']},
     license='LICENSE.txt',
     author='Mark Sanders',
     author_email='sdscdeveloper@gmail.com',
