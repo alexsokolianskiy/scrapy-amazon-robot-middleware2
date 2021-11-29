@@ -1,6 +1,7 @@
 import urllib
 import os
 import logging
+import re
 from io import StringIO
 
 from PIL import Image
@@ -230,14 +231,31 @@ class RobotMiddleware(object):
         self.crawler = crawler
         self.logger = logging.getLogger(self.__class__.__name__)
         self.cracking = False
+        self.domains = [
+            'com',
+            'it',
+            'de',
+            'ca',
+            'fr',
+            'co.uk',
+            'es',
+            'com.au'
+        ]
+        self.domain = 'com'
 
-    def request_image(self, request, response):
+    def get_domain(self, url):
+        for dom in self.domains:
+            match = re.findall(r"amazon\.(%s)"%dom)[0]
+        match = match if match is not None else 'com'
+        return match
+
+    def request_image(self, request, response, domain):
         # Im using beautiful soup because recursive element selection is built in and makes it easier
         # to parse the form inputs out into a dict.
         soup = BeautifulSoup(response.body)
         form = soup.find('form')
 
-        action = 'http://www.amazon.com' + form.get('action')
+        action = "http://www.amazon.%"(domain) + form.get('action')
         params = {x.get('name'): x.get('value') for x in form.findAll('input')}
         url = form.find('img').get('src')
 
@@ -272,7 +290,7 @@ class RobotMiddleware(object):
         return request.replace(url=url, dont_filter=True)
 
     def process_response(self, request, response, spider):
-
+        self.logger.debug(request.url)
         if request.meta.get('crack_retry_count', 0) > self.MAX_RETRY:
             raise IgnoreRequest('Max retries exceeded %s' % request.meta.get('original_request', request))
 
@@ -281,7 +299,11 @@ class RobotMiddleware(object):
             self.crawler.stats.inc_value('robot_check')
             # Log the url of the original request that got blocked
             self.logger.warning('robot check {}'.format(request.meta.get('original_request') or request))
-            return self.request_image(request, response)
+            domain = self.get_domain(request.url)
+            print("==============================++ DOMAIN IS ++================")
+            print(domain)
+            # self.logger.debug("============DOMAIN IS %s"())
+            return self.request_image(request, response, domain)
         elif request.meta.get('image_request', False):
             self.logger.debug('processing image {}'.format(request))
             return self.process_image(request, response)
